@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Commerce Marketplace Pages feature.
+ */
+
+include_once 'ogmk_pages.features.inc';
