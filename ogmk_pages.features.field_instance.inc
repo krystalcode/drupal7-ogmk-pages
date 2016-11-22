@@ -10,8 +10,8 @@
 function ogmk_pages_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-ogmk_page-ogmk_body'.
-  $field_instances['node-ogmk_page-ogmk_body'] = array(
+  // Exported field_instance: 'node-ogmk_page-ogmk_text_with_summary'.
+  $field_instances['node-ogmk_page-ogmk_text_with_summary'] = array(
     'bundle' => 'ogmk_page',
     'default_value' => NULL,
     'deleted' => 0,
@@ -32,7 +32,7 @@ function ogmk_pages_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
-    'field_name' => 'ogmk_body',
+    'field_name' => 'ogmk_text_with_summary',
     'label' => 'Body',
     'required' => 1,
     'settings' => array(
