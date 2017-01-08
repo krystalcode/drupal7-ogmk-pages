@@ -5,3 +5,84 @@
  */
 
 include_once 'ogmk_pages.features.inc';
+include_once 'includes/ogmk_pages.field_formatter.inc';
+
+
+/**
+ * Hooks.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function ogmk_pages_theme($existing, $type, $theme, $path) {
+  // Render items within a Bootstrap grid.
+  $items['bootstrap_grid'] = array(
+    'variables' => array(
+      'cols_clear'    => NULL,
+      'items'         => NULL,
+      'wrapper_class' => NULL,
+    ),
+  );
+
+  $sizes = _ogmk_pages_bootstrap_device_sizes();
+  foreach ($sizes as $size_key => $size_name) {
+    $items['bootstrap_grid']['variables']['cols_' . $size_key] = NULL;
+  }
+
+  return $items;
+}
+
+/**
+ * Returns HTML for a Bootstrap grid with the given items in its columns.
+ *
+ * @Issue(
+ *   "Move the bootstrap_grid theme function to a bootstrap-related module"
+ *   type="task"
+ *   priority="low"
+ *   labels="modularity"
+ * )
+ * @Issue(
+ *   "Add docblock information documenting the bootstrap_grid theme function
+ *   variables"
+ *   type="task"
+ *   priority="low"
+ *   labels="documentation"
+ * )
+ */
+function theme_bootstrap_grid($variables) {
+  if (empty($variables['items'])) {
+    return '';
+  }
+
+  $html = '<div class="row">';
+
+  $column_classes = array();
+  $sizes = _ogmk_pages_bootstrap_device_sizes();
+  foreach ($sizes as $size_key => $size_name) {
+    if (!empty($variables['cols_' . $size_key])) {
+      $column_classes[] = 'col-' . $size_key . '-' . $variables['cols_' . $size_key];
+    }
+  }
+
+  $attributes = '';
+  if (!empty($column_classes)) {
+    $attributes = ' class="' . implode(' ', $column_classes) . '"';
+  }
+
+  foreach ($variables['items'] as $item) {
+    $html .= '<div' . $attributes . '>';
+    if ($variables['wrapper_class']) {
+      $html .= '<div class="' . $variables['wrapper_class'] . '">';
+    }
+    $html .= render($item);
+    if ($variables['wrapper_class']) {
+      $html .= '</div>';
+    }
+    $html .= '</div>';
+  }
+
+  $html .= '</div>';
+
+  return $html;
+}

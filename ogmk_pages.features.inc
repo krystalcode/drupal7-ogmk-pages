@@ -30,3 +30,22 @@ function ogmk_pages_node_info() {
   drupal_alter('node_info', $items);
   return $items;
 }
+
+/**
+ * Implements hook_paragraphs_info().
+ */
+function ogmk_pages_paragraphs_info() {
+  $items = array(
+    'basic' => array(
+      'name' => 'Basic',
+      'bundle' => 'basic',
+      'locked' => '1',
+    ),
+    'node_list' => array(
+      'name' => 'Content List',
+      'bundle' => 'node_list',
+      'locked' => '1',
+    ),
+  );
+  return $items;
+}
