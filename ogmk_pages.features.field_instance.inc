@@ -90,19 +90,15 @@ function ogmk_pages_field_default_field_instances() {
     'settings' => array(
       'better_formats' => array(
         'allowed_formats' => array(
-          'mailgun_plain' => 0,
           'ogmk_basic_html' => 'ogmk_basic_html',
           'ogmk_html' => 0,
           'ogmk_plain_html' => 'ogmk_plain_html',
-          'plain_text' => 0,
+          'plain_text' => 'plain_text',
         ),
         'allowed_formats_toggle' => 1,
         'default_order_toggle' => 0,
         'default_order_wrapper' => array(
           'formats' => array(
-            'mailgun_plain' => array(
-              'weight' => 0,
-            ),
             'ogmk_basic_html' => array(
               'weight' => 0,
             ),
@@ -118,7 +114,7 @@ function ogmk_pages_field_default_field_instances() {
           ),
         ),
       ),
-      'display_summary' => 0,
+      'display_summary' => 1,
       'entity_translation_sync' => FALSE,
       'text_processing' => 1,
       'user_register_form' => FALSE,
@@ -127,7 +123,7 @@ function ogmk_pages_field_default_field_instances() {
       'active' => 1,
       'module' => 'text',
       'settings' => array(
-        'rows' => 20,
+        'rows' => 5,
         'summary_rows' => 5,
       ),
       'type' => 'text_textarea_with_summary',
