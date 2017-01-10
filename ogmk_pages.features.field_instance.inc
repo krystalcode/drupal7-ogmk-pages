@@ -41,10 +41,12 @@ function ogmk_pages_field_default_field_instances() {
       'add_mode' => 'button',
       'allowed_bundles' => array(
         'basic' => -1,
+        'block' => -1,
         'node_list' => -1,
       ),
       'bundle_weights' => array(
-        'basic' => 2,
+        'basic' => -6,
+        'block' => -5,
         'node_list' => -4,
       ),
       'default_edit_mode' => 'closed',
