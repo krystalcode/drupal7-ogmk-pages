@@ -74,14 +74,20 @@ function ogmk_pages_strongarm() {
       'token' => array(
         'custom_settings' => FALSE,
       ),
+      'ogmk_bootstrap_media_simple' => array(
+        'custom_settings' => FALSE,
+      ),
     ),
     'extra_fields' => array(
       'form' => array(
         'metatags' => array(
-          'weight' => '4',
+          'weight' => '5',
         ),
         'path' => array(
-          'weight' => '3',
+          'weight' => '4',
+        ),
+        'xmlsitemap' => array(
+          'weight' => '6',
         ),
       ),
       'display' => array(
