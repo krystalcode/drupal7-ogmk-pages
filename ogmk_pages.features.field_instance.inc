@@ -42,11 +42,13 @@ function ogmk_pages_field_default_field_instances() {
       'allowed_bundles' => array(
         'basic' => -1,
         'block' => -1,
+        'mailing_list_subscription' => -1,
         'node_list' => -1,
       ),
       'bundle_weights' => array(
         'basic' => -6,
         'block' => -5,
+        'mailing_list_subscription' => 4,
         'node_list' => -4,
       ),
       'default_edit_mode' => 'closed',
