@@ -21,7 +21,7 @@ function ogmk_pages_field_default_field_instances() {
         'label' => 'hidden',
         'module' => 'paragraphs',
         'settings' => array(
-          'view_mode' => 'full',
+          'view_mode' => 'view_mode_selector',
         ),
         'type' => 'paragraphs_view',
         'weight' => 3,
