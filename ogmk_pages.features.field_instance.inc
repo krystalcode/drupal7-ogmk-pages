@@ -90,7 +90,7 @@ function ogmk_pages_field_default_field_instances() {
     'entity_type' => 'node',
     'field_name' => 'ogmk_text_with_summary',
     'label' => 'Body',
-    'required' => 1,
+    'required' => 0,
     'settings' => array(
       'better_formats' => array(
         'allowed_formats' => array(
