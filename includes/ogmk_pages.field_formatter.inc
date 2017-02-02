@@ -16,12 +16,37 @@
 function ogmk_pages_field_formatter_info() {
   return [
     // Renders entity references in a Bootstrap grid.
+    /**
+     * @Issue(
+     *   "Move the bootstrap grid field formatters to a bootstrap-related
+     *   module or to ogmk_base"
+     *   type="task"
+     *   priority="low"
+     *   labels="modularity"
+     * )
+     */
     'entityreference_bootstrap_grid' => array(
       'label' => t('Bootstrap Grid'),
       'field types' => ['entityreference'],
       'settings' => array(
         'view_mode'     => 'default',
         'links'         => TRUE,
+        'cols_clear'    => TRUE,
+        'cols_xs'       => 12,
+        'cols_sm'       => 6,
+        'cols_md'       => 4,
+        'cols_lg'       => 3,
+        'wrapper_class' => '',
+      ),
+    ),
+    // Renders atom references in a Bootstrap grid.
+    'atom_reference_bootstrap_grid' => array(
+      'label' => t('Bootstrap Grid'),
+      'field types' => ['atom_reference'],
+      'settings' => array(
+        'context'       => '',
+        'link'          => FALSE,
+        'override'      => FALSE,
         'cols_clear'    => TRUE,
         'cols_xs'       => 12,
         'cols_sm'       => 6,
@@ -197,6 +222,99 @@ function _ogmk_pages_field_formatter_settings_form__entityreference_bootstrap_gr
  * Implements hook_field_formatter_settings_form() via
  * ogmk_pages_field_formatter_settings_form().
  */
+function _ogmk_pages_field_formatter_settings_form__atom_reference_bootstrap_grid(
+  $field,
+  $instance,
+  $view_mode,
+  $form,
+  &$form_state
+) {
+  $settings = $instance['display'][$view_mode]['settings'];
+  $element = array();
+
+  // Context to render.
+  $contexts = scald_contexts_public();
+  $context_options = array();
+  foreach ($contexts as $name => $context) {
+    $context_options[$name] = $context['title'];
+  }
+  $element['context'] = array(
+    '#type'          => 'select',
+    '#title'         => t('Context'),
+    '#description'   => t('The context that will be rendered within the Bootstrap Grid items.'),
+    '#options'       => $context_options,
+    '#default_value' => $settings['context'],
+    '#required'      => TRUE,
+  );
+
+  // Link to content.
+  $element['link'] = array(
+    '#type'          => 'checkbox',
+    '#title'         => t('Link to content'),
+    '#description'   => t('Whether the rendered atom should be linking to the atom view page.'),
+    '#default_value' => $settings['link'],
+  );
+
+  // Allow context override.
+  if (isset($instance['settings']['allow_override']) && $instance['settings']['allow_override']) {
+    $element['override'] = array(
+      '#type'          => 'checkbox',
+      '#title'         => t('Allow context override'),
+      '#description'   => t('Allow overriding the context for each individual atom.'),
+      '#default_value' => $settings['override'],
+     );
+  }
+
+  // Clear columns per device size.
+  $element['cols_clear'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Clear columns per device size'),
+    '#description' => t(
+      'When this option is selected, clearfix divs will be used to "clear" the columns as needed per device size (see related !documentation_link. This option applies only when "Single row" is selected for the "Number of columns per view row" option',
+      array(
+        '!documentation_link' => l(
+          'Bootstrap documentation',
+          'http://getbootstrap.com/css/#grid-example-mixed-complete'
+        ),
+      )
+    ),
+    '#default_value' => $settings['cols_clear'],
+  );
+
+  $column_options = _ogmk_pages_bootstrap_columns_options();
+  $sizes = _ogmk_pages_bootstrap_device_sizes();
+  foreach ($sizes as $size_key => $size_name) {
+    $element['cols_' . $size_key] = array(
+      '#type' => 'select',
+      '#title' => t('Number of columns for !size devices', array('!size' => $size_name)),
+      '#description' => t('See the description on the number of columns for extra small devices.'),
+      '#options' => $column_options,
+      '#default_value' => $settings['cols_' . $size_key],
+      '#required' => FALSE,
+    );
+
+    if ($size_key === 'xs') {
+      $element['cols_' . $size_key]['#description'] = t('Choose the number of columns for a particular device size and up. Not defining the number of columns for a device size will result in inheriting the number of columns from one size below.');
+      $element['cols' . $size_key]['#required'] = TRUE;
+      unset($element['cols_' . $size_key]['#options'][0]);
+    }
+  }
+
+  // Wrapper class.
+  $element['wrapper_class'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Wrapper class'),
+    '#description'   => t('If a value is defined, a wrapper div element will be created with the given class with the rendered item as its content.'),
+    '#default_value' => $settings['wrapper_class'],
+  );
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_form() via
+ * ogmk_pages_field_formatter_settings_form().
+ */
 function _ogmk_pages_field_formatter_settings_form__link_bootstrap_button(
   $field,
   $instance,
@@ -271,6 +389,58 @@ function _ogmk_pages_field_formatter_settings_summary__entityreference_bootstrap
   $summary[] = t('Rendered as @mode', array('@mode' => $view_mode_label));
 
   $summary[] = !empty($settings['links']) ? t('Display links') : t('Do not display links');
+
+  $cols_clear = $settings['cols_clear'];
+  $summary[] = $cols_clear ? t('Clear columns per device size') : t('Do not clear columns per device size');
+
+  $column_options = _ogmk_pages_bootstrap_columns_options();
+  $sizes = _ogmk_pages_bootstrap_device_sizes();
+  foreach ($sizes as $size_key => $size_name) {
+    if ($settings['cols_' . $size_key]) {
+      $summary[] = format_plural(
+        $column_options[$settings['cols_' . $size_key]],
+        '1 column for !size devices',
+        '@count columns for !size devices',
+        array(
+          '!size' => $size_name,
+        )
+      );
+    }
+  }
+
+  if (!empty($settings['wrapper_class'])) {
+    $summary[] = t(
+      'Wrapping items within a div element with class "@class"',
+      array('@class' => $settings['wrapper_class'])
+    );
+  }
+
+  if (empty($summary)) {
+    return '';
+  }
+
+  return implode('<br />', $summary);
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary() via
+ * ogmk_pages_field_formatter_settings_summary().
+ */
+function _ogmk_pages_field_formatter_settings_summary__atom_reference_bootstrap_grid(
+  $field,
+  $instance,
+  $view_mode
+) {
+  $settings = &$instance['display'][$view_mode]['settings'];
+  $summary = array();
+
+  $contexts = scald_contexts_public();
+  $context_label = $contexts[$settings['context']]['title'];
+  $summary[] = t('Rendered as @context', array('@context' => $context_label));
+
+  $summary[] = !empty($settings['link']) ? t('Link to content') : t('Do not link to content');
+
+  $summary[] = !empty($settings['override']) ? t('Allow context override') : t('Do not allow context override');
 
   $cols_clear = $settings['cols_clear'];
   $summary[] = $cols_clear ? t('Clear columns per device size') : t('Do not clear columns per device size');
@@ -389,6 +559,79 @@ function _ogmk_pages_field_formatter_view__entityreference_bootstrap_grid(
     '#theme'         => 'bootstrap_grid',
     '#cols_clear'    => $settings['cols_clear'],
     '#items'         => $result,
+    '#wrapper_class' => $settings['wrapper_class'],
+  );
+
+  $sizes = _ogmk_pages_bootstrap_device_sizes();
+  foreach ($sizes as $size_key => $size_name) {
+    $render_array['#cols_' . $size_key] = $settings['cols_' . $size_key];
+  }
+
+  return $render_array;
+}
+
+/**
+ * Implements hook_field_formatter_view() via
+ * ogmk_pages_field_formatter_view().
+ *
+ * Code mostly taken by the atom_reference context field formatters. The
+ * only difference is that we render the results using the bootstrap_grid theme.
+ *
+ * @Issue(
+ *   "Test whether the allow context override functionality works properly in
+ *   the atom_reference_bootstrap_grid field formatter"
+ *   type="bug"
+ *   priority="low"
+ *   labels="testing"
+ * )
+ */
+function _ogmk_pages_field_formatter_view__atom_reference_bootstrap_grid(
+  $entity_type,
+  $entity,
+  $field,
+  $instance,
+  $langcode,
+  $items,
+  $display
+) {
+  $contexts       = scald_contexts();
+  $element        = array();
+  $settings       = $display['settings'];
+  $render_context = $settings['context'];
+
+  $uri = false;
+
+  // Check if the formatter involves a link.
+  if ($settings['link']) {
+    $uri = entity_uri($entity_type, $entity);
+  }
+
+  if (!empty($contexts[$render_context])) {
+    foreach ($items as $delta => $item) {
+      $options = array();
+      if (!empty($item['options'])) {
+        $options += unserialize($item['options']);
+      }
+      $context = $render_context;
+      if (
+        !empty($settings['override']) &&
+        !empty($options['context'])   &&
+        $options['context'] !== 'use_the_default'
+      ) {
+        $context = $options['context'];
+      }
+      $sid = $item['sid'];
+      if ($uri) {
+        $options['link'] = $uri['path'];
+      }
+      $element[$delta] = array('#markup' => scald_render($sid, $context, drupal_json_encode($options)));
+    }
+  }
+
+  $render_array = array(
+    '#theme'         => 'bootstrap_grid',
+    '#cols_clear'    => $settings['cols_clear'],
+    '#items'         => $element,
     '#wrapper_class' => $settings['wrapper_class'],
   );
 
